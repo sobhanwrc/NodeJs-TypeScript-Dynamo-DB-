@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+        "module": "CommonJS",
+        "sourceMap": true,
+        "target": "es2017",
+        // "outDir": "./dist",
+        // "baseUrl": "./src"
+        // "resolveJsonModule": true
+        "esModuleInterop": true,
+        // "allowSyntheticDefaultImports": true,
+        "experimentalDecorators":true
+    },
+    "include": [
+        "src/**/*.ts", "src/server.ts"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
+}
