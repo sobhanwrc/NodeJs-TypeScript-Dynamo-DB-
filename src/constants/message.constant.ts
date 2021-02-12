@@ -4,10 +4,10 @@ export const message = {
     },
 
     success: {
-        RES_ADD: 'Restaurant added successfully',
-        RES_GET: 'Restaurant loaded successfully',
-        RES_UPDATE: 'Restaurant updated successfully',
-        RES_DELETE: 'Restaurant deleted successfully.'
+        USR_ADD: 'User added successfully',
+        USR_GET: 'User loaded successfully',
+        USR_UPDATE: 'User updated successfully',
+        USR_DELETE: 'User deleted successfully.'
     }
 
 }

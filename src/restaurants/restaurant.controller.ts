@@ -37,7 +37,7 @@ class RestaurantController extends RequestBase {
       const resObj: IResponse = {
         res: res,
         status: 201,
-        message: message.success.RES_ADD,
+        message: message.success.USR_ADD,
         data: result
       }
       this.send(resObj);
@@ -53,7 +53,7 @@ class RestaurantController extends RequestBase {
       const resObj: IResponse = {
         res: res,
         status: 200,
-        message: message.success.RES_GET,
+        message: message.success.USR_GET,
         data: restaurant
       }
       this.send(resObj);
@@ -75,7 +75,7 @@ class RestaurantController extends RequestBase {
       const resObj: IResponse = {
         res: res,
         status: 200,
-        message: message.success.RES_GET,
+        message: message.success.USR_GET,
         data: restaurants
       }
       this.send(resObj);
@@ -96,7 +96,7 @@ class RestaurantController extends RequestBase {
       const resObj: IResponse = {
         res: res,
         status: 201,
-        message: message.success.RES_UPDATE,
+        message: message.success.USR_UPDATE,
         data: result
       }
       this.send(resObj);
@@ -112,7 +112,7 @@ class RestaurantController extends RequestBase {
       const resObj: IResponse = {
         res: res,
         status: 200,
-        message: message.success.RES_DELETE,
+        message: message.success.USR_DELETE,
         data: restaurant
       }
       this.send(resObj);
