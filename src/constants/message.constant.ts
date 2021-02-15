@@ -7,7 +7,9 @@ export const message = {
         USR_ADD: 'User added successfully',
         USR_GET: 'User loaded successfully',
         USR_UPDATE: 'User updated successfully',
-        USR_DELETE: 'User deleted successfully.'
+        USR_DELETE: 'User deleted successfully.',
+        USR_REG : 'User registration successfully.',
+        USR_LOGIN : 'User logged in successfully.',
     }
 
 }

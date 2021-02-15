@@ -1,10 +1,18 @@
-import { NextFunction, Response } from 'express';
+import { NextFunction, Response} from 'express';
 import * as jwt from 'jsonwebtoken';
-import AuthenticationTokenMissingException from '../exceptions/AuthenticationTokenMissingException';
-import WrongAuthenticationTokenException from '../exceptions/WrongAuthenticationTokenException';
 import DataStoredInToken from '../interfaces/dataStoredInToken';
 import RequestWithUser from '../interfaces/requestWithUser.interface';
-import userModel from '../users/user.model';
+import AWS from 'aws-sdk';
+
+const awsConfig = {
+    "region" : process.env.aws_region,
+    "endpoint" : process.env.aws_endpoint,
+    "accessKeyId" : process.env.aws_accessKeyId,
+    "secretAccessKey" : process.env.aws_secretAccessKey
+};
+AWS.config.update(awsConfig);
+
+const docClient = new AWS.DynamoDB.DocumentClient();
  
 async function authMiddleware(request: RequestWithUser, response: Response, next: NextFunction) {
   const token = request.header('Authorization')
@@ -12,19 +20,48 @@ async function authMiddleware(request: RequestWithUser, response: Response, next
     const secret = process.env.JWT_SECRET;
     try {
       const verificationResponse = jwt.verify(token, secret) as DataStoredInToken;
-      const id = verificationResponse._id;
-      const user = await userModel.findById(id);
-      if (user) {
-        request.user = user;
+      const userId = verificationResponse.SK;
+
+      const params = {
+          TableName: process.env.aws_TableName,
+          Key:{
+              "PK" : "USR",
+              "SK" : userId
+          }
+       }
+
+      const userDetail = await docClient.get(params).promise();
+
+      const obj = {
+        PK : userDetail.Item.PK,
+        SK : userDetail.Item.SK,
+        firstName : userDetail.Item.firstName,
+        lastName : userDetail.Item.lastName,
+      }
+      if (userDetail) {
+        request.user = obj;
         next();
       } else {
-        next(new WrongAuthenticationTokenException());
+        return response.status(403).send({
+          error : {
+            message : "Wrong auth token is supplied."
+          }
+        })
       }
     } catch (error) {
-      next(new WrongAuthenticationTokenException());
+      return response.status(401).send({
+        error : {
+          message : error.message
+        }
+      })
     }
   } else {
-    next(new AuthenticationTokenMissingException());
+
+    return response.status(401).send({
+      error : {
+        message : "Auth token is not supplied."
+      }
+    })
   }
 }
  

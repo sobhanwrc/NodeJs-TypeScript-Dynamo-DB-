@@ -1,4 +1,5 @@
 import express from 'express';
+import helmet from 'helmet'
 import * as bodyParser from 'body-parser';
 import cors from 'cors';
 import 'dotenv/config';
@@ -18,7 +19,13 @@ class App {
     connectToTheDatabase();
     this.initializeMiddlewares();
     this.initializeControllers(controllers);
+    this.initializeSecurities();
+    this.defaultMethods();
     this.logger = createLogFile();
+  }
+
+  private initializeSecurities() {
+    this.app.use(helmet());
   }
 
   private initializeMiddlewares() {
@@ -31,6 +38,16 @@ class App {
     controllers.forEach((controller) => {
       this.app.use('/', controller.router);
     });
+  }
+
+  private defaultMethods() {
+    this.app.use((req: express.Request, res: express.Response) => {
+      res.status(405).send({
+        error : {
+          message : "Method not found"
+        }
+      })
+    })
   }
   
   public listen() {

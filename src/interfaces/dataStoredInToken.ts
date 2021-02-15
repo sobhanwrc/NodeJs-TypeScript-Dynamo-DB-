@@ -1,6 +1,6 @@
 
 interface DataStoredInToken {
-  _id: string;
+  SK: string;
 }
 
 export default DataStoredInToken;
