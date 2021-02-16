@@ -1,6 +1,10 @@
 export const message = {
     error: {
-        RES_NAME_REQ: 'Restaurant name is required'
+        USER_NOT_FOUND: 'User not found.',
+        EMAIL_NOT_VERIFIED : "Your account is not verified.",
+        PASSWORD_NOT_MATCH : "UserId or password is wrong.",
+        TOKEN_NOT_SUPPLIED : "Auth token not supplied.",
+        WRONG_TOKEN_SUPPLIED : "Wrong auth token is supplied."
     },
 
     success: {
@@ -10,6 +14,7 @@ export const message = {
         USR_DELETE: 'User deleted successfully.',
         USR_REG : 'User registration successfully.',
         USR_LOGIN : 'User logged in successfully.',
+        USR_FORGOT_PASSWORD_UPDATE : "Forgot password updated successfully."
     }
 
 }

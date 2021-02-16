@@ -1,5 +1,6 @@
 import AWS from 'aws-sdk';
 import bcrypt from 'bcrypt';
+import { message } from '../constants/message.constant';
 
 const awsConfig = {
     "region" : process.env.aws_region,
@@ -37,10 +38,11 @@ export const registration = async (saveQueryParams) => {
             lastName : saveQueryParams.lastName,
             mobileNumber : saveQueryParams.mobileNumber,
             emailId : saveQueryParams.emailId,
-            userStatus : true,
+            userStatus : false,
+            password : hash,
+            emailVerified : false,
             createdOn : new Date().toUTCString(),
             updatedOn : new Date().toUTCString(),
-            password : hash
         };
         const params = {
             TableName: process.env.aws_TableName,
@@ -69,6 +71,12 @@ export const login = async (loginObj) => {
         const isPasswordMatch = bcrypt.compareSync(password, isExist.Item.password);
 
         if(isPasswordMatch === true){
+            if(isExist.Item.emailVerified === false){
+                return{
+                    status : false,
+                    message:message.error.EMAIL_NOT_VERIFIED
+                }
+            }
             return{
                 status : true,
                 data : isExist.Item
@@ -76,13 +84,13 @@ export const login = async (loginObj) => {
         }else{
             return{
                 status : false,
-                message: "UserId or Password is wrong."
+                message: message.error.PASSWORD_NOT_MATCH
             }
         }
     }else{
         return{
             status : false,
-            message: "User not found."
+            message: message.error.USER_NOT_FOUND
         }
     }
 }
@@ -208,5 +216,42 @@ export const activateOrDeactivateUser = async (id, updateQueryParams) => {
     }else{
         return false
     }
+}
+
+export const fetchUserByEmailOrUserId = async (fetchQueryParams) => {
+    const isExist = {
+        TableName: process.env.aws_TableName,
+        Key:{
+            "PK" : "USR",
+            "SK" : fetchQueryParams.emailId
+        }
+    };
+    const userIsExistOrNot = await docClient.get(isExist).promise();
+
+    if(Object.keys(userIsExistOrNot).length > 0){
+        return true
+    }
+
+    return false
+}
+
+export const forgotPasswordUpdate = async (updateQueryParams) => {
+    const newPassword = bcrypt.hashSync(updateQueryParams.confirmPassword, saltRounds);
+
+    const params = {
+        TableName : process.env.aws_TableName,
+        Key:{
+            "PK" : "USR",
+            "SK" : updateQueryParams.emailId
+        },
+        UpdateExpression: "set password = :byUpdatePassword, updatedOn = :byDate",
+        ExpressionAttributeValues:{
+            ":byUpdatePassword" : newPassword,
+            ":byDate" : updateQueryParams.updatedOn
+        },
+        ReturnValues:"UPDATED_NEW"
+    };
+    const updateResp = await docClient.update(params).promise();
+    return updateResp.Attributes;
 }
 

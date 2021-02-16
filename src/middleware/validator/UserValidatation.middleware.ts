@@ -37,10 +37,7 @@ export default async function userAddValidation(request: RequestWithUser, respon
         userRole: Joi.string().required().messages({
             'string.empty': `userRole cannot be an empty field.`,
             'any.required': `Please fill userRole.`
-        }),
-        status : Joi.boolean().optional().messages({
-            'boolean.empty': `status cannot be an empty field.`
-        }),
+        })
     })
 
     const value = await rule.validate(request.body);
@@ -172,6 +169,56 @@ export async function userLoginValidation(request: RequestWithUser, response: Re
         password : Joi.string().required().min(8).messages({
             'string.empty': `password cannot be an empty field.`,
             'any.required': `Please fill password.`,
+            'string.min': `Minimum length 8 characters.`
+        })
+    })
+    const value = await rule.validate(request.body);
+
+    const checkingBasicValidation = await basicValidation(value, request.body);
+    if(checkingBasicValidation.status === true){
+        return response.status(400).json({
+            message: checkingBasicValidation.message,
+            data: {}
+        });
+    }
+    next();
+}
+
+export async function userForgotPasswordValidation(request: RequestWithUser, response: Response, next: NextFunction) {
+    const rule = Joi.object({
+        emailId : Joi.string().required().max(50).messages({
+            'string.empty': `emailId cannot be an empty field.`,
+            'any.required': `Please fill emailId.`,
+            'string.max': `emailId maximum 50 characters long.`
+        })
+    })
+    const value = await rule.validate(request.body);
+
+    const checkingBasicValidation = await basicValidation(value, request.body);
+    if(checkingBasicValidation.status === true){
+        return response.status(400).json({
+            message: checkingBasicValidation.message,
+            data: {}
+        });
+    }
+    next();
+}
+
+export async function userForgotPasswordUpdateValidation(request: RequestWithUser, response: Response, next: NextFunction) {
+    const rule = Joi.object({
+        emailId : Joi.string().required().max(50).messages({
+            'string.empty': `emailId cannot be an empty field.`,
+            'any.required': `Please fill emailId.`,
+            'string.max': `emailId maximum 50 characters long.`
+        }),
+        password : Joi.string().required().min(8).messages({
+            'string.empty': `password cannot be an empty field.`,
+            'any.required': `Please fill password.`,
+            'string.min': `Minimum length 8 characters.`
+        }),
+        confirmPassword : Joi.string().required().min(8).messages({
+            'string.empty': `confirmPassword cannot be an empty field.`,
+            'any.required': `Please fill confirmPassword.`,
             'string.min': `Minimum length 8 characters.`
         })
     })

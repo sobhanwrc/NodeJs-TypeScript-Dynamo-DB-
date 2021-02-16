@@ -3,6 +3,7 @@ import * as jwt from 'jsonwebtoken';
 import DataStoredInToken from '../interfaces/dataStoredInToken';
 import RequestWithUser from '../interfaces/requestWithUser.interface';
 import AWS from 'aws-sdk';
+import { message } from '../constants/message.constant';
 
 const awsConfig = {
     "region" : process.env.aws_region,
@@ -40,11 +41,12 @@ async function authMiddleware(request: RequestWithUser, response: Response, next
       }
       if (userDetail) {
         request.user = obj;
+
         next();
       } else {
         return response.status(403).send({
           error : {
-            message : "Wrong auth token is supplied."
+            message : message.error.WRONG_TOKEN_SUPPLIED
           }
         })
       }
@@ -59,7 +61,7 @@ async function authMiddleware(request: RequestWithUser, response: Response, next
 
     return response.status(401).send({
       error : {
-        message : "Auth token is not supplied."
+        message : message.error.TOKEN_NOT_SUPPLIED
       }
     })
   }
