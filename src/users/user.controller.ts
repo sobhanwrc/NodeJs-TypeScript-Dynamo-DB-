@@ -19,7 +19,7 @@ class RestaurantController extends RequestBase {
   }
 
   private initializeRoutes() {
-    this.router.post(`${this.path}/add-user`, userAddValidation, this.addUsers);
+    this.router.post(`${this.path}/add-user`, authMiddleware, userAddValidation, this.addUsers);
     this.router.get(`${this.path}/lists-user`, authMiddleware, this.getAllUsers);
     this.router.put(`${this.path}/update-user/:userId`, authMiddleware, userUpdateValidation, this.updateUser);
     this.router.delete(`${this.path}/delete-user/:userId`, authMiddleware, this.deleteUser);
@@ -64,8 +64,8 @@ class RestaurantController extends RequestBase {
           SK : result.data.SK,
           PK : result.data.PK,
         }
-
         const generateToken = jwt.sign(tokenObj, secret,{ expiresIn : jwtExpiresIn });
+
         //#endregion
 
         const resObj: IResponse = {

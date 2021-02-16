@@ -2,9 +2,10 @@ import Joi, * as Validator from "joi"
 import RequestWithUser from '../../interfaces/requestWithUser.interface';
 import { NextFunction, Response } from 'express';
 
+const validEmailFormat = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/;
+const validPasswordFormat = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{8,50}$/;
+
 export default async function userAddValidation(request: RequestWithUser, response: Response, next: NextFunction) {
-    const validEmailFormat = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/;
-    const validPasswordFormat = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{8,50}$/;
     const rule = Joi.object({
         firstName : Joi.string().required().max(50).messages({
             'string.empty': `firstName cannot be an empty field.`,
@@ -38,34 +39,20 @@ export default async function userAddValidation(request: RequestWithUser, respon
             'any.required': `Please fill userRole.`
         }),
         status : Joi.boolean().optional().messages({
-            'boolean.empty': `status cannot be an empty field.`,
-            'any.required': `Please fill status.`
+            'boolean.empty': `status cannot be an empty field.`
         }),
     })
 
     const value = await rule.validate(request.body);
 
-    if(value.error){
-        const errorMessage = JSON.parse(JSON.stringify(value.error, null, 2))
-        console.log(errorMessage, 'errorMessage');
-        
+    const checkingBasicValidation = await basicValidation(value, request.body);
+    if(checkingBasicValidation.status === true){
         return response.status(400).json({
-            message: errorMessage.details[0].message,
+            message: checkingBasicValidation.message,
             data: {}
         });
-    }else if(!(request.body.emailId).toLowerCase().match(validEmailFormat)){
-        return response.status(400).json({
-            message: "Email format invalid.",
-            data: {}
-        });
-    }else if(!(request.body.password).match(validPasswordFormat)){
-        return response.status(400).json({
-            message: "Password format invalid.",
-            data: {}
-        });
-    }else{
-        next();
     }
+    next();
 }
 
 export async function userStatusChangedValidation(request: RequestWithUser, response: Response, next: NextFunction) {
@@ -78,22 +65,14 @@ export async function userStatusChangedValidation(request: RequestWithUser, resp
     });
 
     const value = await rule.validate(request.body);
-
-    if(Object.keys(request.body).length === 0){
+    const checkingBasicValidation = await basicValidation(value, request.body);
+    if(checkingBasicValidation.status === true){
         return response.status(400).json({
-            message: "Blank payload supplied.",
+            message: checkingBasicValidation.message,
             data: {}
         });
-    }else if(value.error){
-        const errorMessage = JSON.parse(JSON.stringify(value.error, null, 2))
-        
-        return response.status(400).json({
-            message: errorMessage.details[0].message,
-            data: {}
-        });
-    }else{
-        next();
     }
+    next();
 }
 
 export async function userUpdateValidation(request: RequestWithUser, response: Response, next: NextFunction) {
@@ -126,22 +105,17 @@ export async function userUpdateValidation(request: RequestWithUser, response: R
     })
 
     const value = await rule.validate(request.body);
-
-    if(value.error){
-        const errorMessage = JSON.parse(JSON.stringify(value.error, null, 2))
-        
+    const checkingBasicValidation = await basicValidation(value, request.body);
+    if(checkingBasicValidation.status === true){
         return response.status(400).json({
-            message: errorMessage.details[0].message,
+            message: checkingBasicValidation.message,
             data: {}
         });
-    }else{
-        next();
     }
+    next();
 }
 
 export async function userRegistrationValidation(request: RequestWithUser, response: Response, next: NextFunction) {
-    const validEmailFormat = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/;
-    const validPasswordFormat = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{8,50}$/;
     const rule = Joi.object({
         firstName : Joi.string().required().max(50).messages({
             'string.empty': `firstName cannot be an empty field.`,
@@ -178,42 +152,17 @@ export async function userRegistrationValidation(request: RequestWithUser, respo
     })
 
     const value = await rule.validate(request.body);
-
-    if(Object.keys(request.body).length === 0){
+    const checkingBasicValidation = await basicValidation(value, request.body);
+    if(checkingBasicValidation.status === true){
         return response.status(400).json({
-            message: "Blank payload supplied.",
+            message: checkingBasicValidation.message,
             data: {}
         });
-    }else if(value.error){
-        const errorMessage = JSON.parse(JSON.stringify(value.error, null, 2))
-        
-        return response.status(400).json({
-            message: errorMessage.details[0].message,
-            data: {}
-        });
-    }else if(!(request.body.emailId).toLowerCase().match(validEmailFormat)){
-        return response.status(400).json({
-            message: "Email format invalid.",
-            data: {}
-        });
-    }else if(request.body.confirmPassword !== request.body.password){
-        return response.status(400).json({
-            message: "Password and Confirm password must be same.",
-            data: {}
-        });
-    }else if(!(request.body.confirmPassword).match(validPasswordFormat)){
-        return response.status(400).json({
-            message: "Password format invalid.",
-            data: {}
-        });
-    }else{
-        next();
     }
+    next();
 }
 
 export async function userLoginValidation(request: RequestWithUser, response: Response, next: NextFunction) {
-    const validEmailFormat = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/;
-    const validPasswordFormat = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{8,50}$/;
     const rule = Joi.object({
         userId : Joi.string().required().max(50).messages({
             'string.empty': `userId cannot be an empty field.`,
@@ -226,32 +175,81 @@ export async function userLoginValidation(request: RequestWithUser, response: Re
             'string.min': `Minimum length 8 characters.`
         })
     })
-
     const value = await rule.validate(request.body);
 
-    if(Object.keys(request.body).length === 0){
+    const checkingBasicValidation = await basicValidation(value, request.body);
+    if(checkingBasicValidation.status === true){
         return response.status(400).json({
-            message: "Blank payload supplied.",
+            message: checkingBasicValidation.message,
             data: {}
         });
-    }else if(value.error){
+    }
+    next();
+}
+
+async function basicValidation(value, payload) {
+    if(Object.keys(payload).length === 0){
+        return{
+            status : true,
+            message : "Blank payload supplied."
+        }
+    }
+
+    if(value.error){
         const errorMessage = JSON.parse(JSON.stringify(value.error, null, 2))
-        
-        return response.status(400).json({
-            message: errorMessage.details[0].message,
-            data: {}
-        });
-    }else if(!(request.body.password).match(validPasswordFormat)){
-        return response.status(400).json({
-            message: "Password format invalid.",
-            data: {}
-        });
-    }else if(!(request.body.userId).toLowerCase().match(validEmailFormat)){
-        return response.status(400).json({
-            message: "UserId format invalid.",
-            data: {}
-        });
-    }else{
-        next();
+
+        return{
+            status : true,
+            message : errorMessage.details[0].message
+        }
+    }
+
+    if(payload.password){
+        if(!(payload.password).match(validPasswordFormat)){
+            return {
+                status : true,
+                message: "Password format invalid.",
+            }
+        }
+    }
+
+    if(payload.confirmPassword){
+        if(!(payload.confirmPassword).match(validPasswordFormat)){
+            return {
+                status : true,
+                message: "Confirm Password format invalid.",
+            }
+        }
+    }
+
+    if(payload.confirmPassword && payload.password){
+        if(payload.confirmPassword !== payload.password){
+            return{
+                status : true,
+                message: "Password and Confirm password must be same.",
+            }
+        }
+    }
+
+    if(payload.userId){
+        if(!(payload.userId).toLowerCase().match(validEmailFormat)){
+            return{
+                status : true,
+                message: "UserId format invalid.",
+            }
+        }
+    }
+
+    if(payload.emailId){
+        if(!(payload.emailId).toLowerCase().match(validEmailFormat)){
+            return{
+                status : true,
+                message: "EmailId format invalid.",
+            }
+        }
+    }
+
+    return{
+        status : false
     }
 }

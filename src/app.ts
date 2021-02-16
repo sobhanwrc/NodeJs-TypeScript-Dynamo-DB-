@@ -4,7 +4,6 @@ import * as bodyParser from 'body-parser';
 import cors from 'cors';
 import 'dotenv/config';
 
-import connectToTheDatabase from './dbConnection';
 import { createLogFile } from './utils/logger';
 
 class App {
@@ -16,7 +15,6 @@ class App {
     this.app = express();
     this.port = Number(port);
 
-    connectToTheDatabase();
     this.initializeMiddlewares();
     this.initializeControllers(controllers);
     this.initializeSecurities();
