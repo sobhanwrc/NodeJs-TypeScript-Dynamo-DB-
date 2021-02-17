@@ -28,6 +28,7 @@ class RestaurantController extends RequestBase {
     this.router.post(`${this.path}/user-login`, userLoginValidation, this.login);
     this.router.post(`${this.path}/user-forgot-password-request`, userForgotPasswordValidation, this.forgotPassword);
     this.router.put(`${this.path}/user-forgot-password-update`, userForgotPasswordUpdateValidation, this.forgotPasswordUpdate);
+    this.router.get(`${this.path}/user-email-verified/:userId`, this.emailVerificationForRegistration)
   }
 
   private registration = async (req: express.Request, res: express.Response) => {
@@ -202,10 +203,8 @@ class RestaurantController extends RequestBase {
 
   private forgotPassword = async (req: express.Request, res : express.Response) => {
     try {
-      const fetchQueryParams = {
-        emailId: req.body.emailId
-      };
-      const userIsExist = await UserService.fetchUserByEmailOrUserId(fetchQueryParams);
+      const emailId = req.body.emailId
+      const userIsExist = await UserService.fetchUserByEmailOrUserId(emailId);
 
       if(userIsExist){
         //#region sent email for forgot password link
@@ -243,6 +242,30 @@ class RestaurantController extends RequestBase {
         data: updateResp
       }
       this.send(resObj);
+    } catch (error) {
+      this.sendServerError(res, error.message);
+    }
+  }
+
+  private emailVerificationForRegistration = async (req: express.Request, res : express.Response) => {
+    try {
+      const userId = req.params.userId
+      const userIsExist = await UserService.fetchUserByEmailOrUserId(userId);
+      if(userIsExist){
+        //#region update user detail for verified email
+        const updatedObj = {
+          userId : req.params.userId,
+          emailVerified : true,
+          updatedOn : new Date().toUTCString()
+        }
+        const updateUserData = await UserService.updateEmailVerifiedField(updatedObj);
+        //#endregion
+        if(updateUserData){
+          /**Sent welcome mail */
+          await UserService.welcomeEmailSent(userId);
+          res.send("Thank You! email verified successfully.")
+        }
+      }
     } catch (error) {
       this.sendServerError(res, error.message);
     }

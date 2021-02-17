@@ -1,6 +1,9 @@
 import AWS from 'aws-sdk';
 import bcrypt from 'bcrypt';
+import { required } from 'joi';
 import { message } from '../constants/message.constant';
+
+const EmailNotificationService = require('../notification/emailNotification.service')
 
 const awsConfig = {
     "region" : process.env.aws_region,
@@ -33,7 +36,7 @@ export const registration = async (saveQueryParams) => {
         const obj = {
             PK: "USR",
             SK: saveQueryParams.emailId,
-            userId : saveQueryParams.emailId,
+            userId : saveQueryParams.userId.toLowerCase(),
             firstName : saveQueryParams.firstName,
             lastName : saveQueryParams.lastName,
             mobileNumber : saveQueryParams.mobileNumber,
@@ -49,19 +52,47 @@ export const registration = async (saveQueryParams) => {
             Item: obj
         };
         const item = await docClient.put(params).promise(); //for adding data to DB
+
+        //#region sent email for account verification
+        const verifiedEmailLink = `${process.env.HOST}:${process.env.PORT}/api/user-email-verified/${obj.SK}`;
+
+        const userDetailObj = {
+            firstName : obj.firstName,
+            verifiedEmailLink
+        }
+
+        EmailNotificationService('userVerifiedMail')(obj.emailId, userDetailObj).send();
+        //#endregion
+
         return item;
     }
 }
 
+export const welcomeEmailSent = async (userId) => {
+    //#region get user detail
+    const isExist = {
+        TableName: process.env.aws_TableName,
+        Key:{
+            "PK" : "USR",
+            "SK" : userId
+        }
+    };
+    const userIsExistOrNot = await docClient.get(isExist).promise();
+    //#endregion
+
+    /**Sent welcome mail to a user */
+    EmailNotificationService('userWelcomeMail')(userIsExistOrNot.Item.emailId, userIsExistOrNot.Item).send();
+}
+
 export const login = async (loginObj) => {
-    const userId = loginObj.userId
+    const emailId = loginObj.emailId
     const password = loginObj.password
 
     const params = {
         TableName: process.env.aws_TableName,
         Key:{
             "PK" : "USR",
-            "SK" : userId
+            "SK" : emailId
         }
     }
 
@@ -218,12 +249,12 @@ export const activateOrDeactivateUser = async (id, updateQueryParams) => {
     }
 }
 
-export const fetchUserByEmailOrUserId = async (fetchQueryParams) => {
+export const fetchUserByEmailOrUserId = async (userId) => {
     const isExist = {
         TableName: process.env.aws_TableName,
         Key:{
             "PK" : "USR",
-            "SK" : fetchQueryParams.emailId
+            "SK" : userId
         }
     };
     const userIsExistOrNot = await docClient.get(isExist).promise();
@@ -248,6 +279,25 @@ export const forgotPasswordUpdate = async (updateQueryParams) => {
         ExpressionAttributeValues:{
             ":byUpdatePassword" : newPassword,
             ":byDate" : updateQueryParams.updatedOn
+        },
+        ReturnValues:"UPDATED_NEW"
+    };
+    const updateResp = await docClient.update(params).promise();
+    return updateResp.Attributes;
+}
+
+export const updateEmailVerifiedField = async (updatedUserData) => {
+    const params = {
+        TableName : process.env.aws_TableName,
+        Key:{
+            "PK" : "USR",
+            "SK" : updatedUserData.userId
+        },
+        UpdateExpression: "set emailVerified = :byEmail, userStatus = :byStatus, updatedOn = :byDate",
+        ExpressionAttributeValues:{
+            ":byEmail" : updatedUserData.emailVerified,
+            ":byStatus" : true,
+            ":byDate" : updatedUserData.updatedOn
         },
         ReturnValues:"UPDATED_NEW"
     };

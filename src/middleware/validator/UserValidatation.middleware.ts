@@ -24,6 +24,11 @@ export default async function userAddValidation(request: RequestWithUser, respon
             'number.min': `mobileNumber should have 10 characters long.`,
             'number.base' : `mobileNumber should be a type of digit.`
         }),
+        userId : Joi.string().required().max(20).messages({
+            'string.empty': `userId cannot be an empty field.`,
+            'any.required': `Please fill userId.`,
+            'string.max': `userId maximum 20 characters long.`
+        }),
         emailId : Joi.string().required().max(50).messages({
             'string.empty': `emailId cannot be an empty field.`,
             'any.required': `Please fill emailId.`,
@@ -124,6 +129,11 @@ export async function userRegistrationValidation(request: RequestWithUser, respo
             'any.required': `Please fill lastName.`,
             'string.max': `lastName maximum 50 characters long.`
         }),
+        userId : Joi.string().required().max(20).messages({
+            'string.empty': `userId cannot be an empty field.`,
+            'any.required': `Please fill userId.`,
+            'string.max': `userId maximum 20 characters long.`
+        }),
         mobileNumber : Joi.number().required().min(10).messages({
             'number.empty': `mobileNumber cannot be an empty field.`,
             'any.required': `Please fill mobileNumber.`,
@@ -161,10 +171,10 @@ export async function userRegistrationValidation(request: RequestWithUser, respo
 
 export async function userLoginValidation(request: RequestWithUser, response: Response, next: NextFunction) {
     const rule = Joi.object({
-        userId : Joi.string().required().max(50).messages({
-            'string.empty': `userId cannot be an empty field.`,
-            'any.required': `Please fill userId.`,
-            'string.max': `userId maximum 50 characters long.`
+        emailId : Joi.string().required().max(50).messages({
+            'string.empty': `emailId cannot be an empty field.`,
+            'any.required': `Please fill emailId.`,
+            'string.max': `emailId maximum 50 characters long.`
         }),
         password : Joi.string().required().min(8).messages({
             'string.empty': `password cannot be an empty field.`,
@@ -274,15 +284,6 @@ async function basicValidation(value, payload) {
             return{
                 status : true,
                 message: "Password and Confirm password must be same.",
-            }
-        }
-    }
-
-    if(payload.userId){
-        if(!(payload.userId).toLowerCase().match(validEmailFormat)){
-            return{
-                status : true,
-                message: "UserId format invalid.",
             }
         }
     }
