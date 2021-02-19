@@ -7,7 +7,7 @@ import { IResponse } from '../interfaces/response.interface';
 import { message } from '../constants/message.constant';
 import authMiddleware from '../middleware/auth.middleware'
 import userAddValidation from "../middleware/validator/UserValidatation.middleware"
-import {userStatusChangedValidation, userUpdateValidation, userRegistrationValidation, userLoginValidation, userForgotPasswordValidation, userForgotPasswordUpdateValidation} from "../middleware/validator/UserValidatation.middleware"
+import {userStatusChangedValidation, userUpdateValidation, userRegistrationValidation, userLoginValidation, userForgotPasswordValidation, userForgotPasswordUpdateValidation} from "../middleware/validator/UserValidatation.middleware";
 
 class RestaurantController extends RequestBase {
   public path = '/api';
@@ -270,7 +270,6 @@ class RestaurantController extends RequestBase {
       this.sendServerError(res, error.message);
     }
   }
-
 }
 
 export default RestaurantController;

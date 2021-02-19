@@ -1,6 +1,5 @@
 import AWS from 'aws-sdk';
 import bcrypt from 'bcrypt';
-import { required } from 'joi';
 import { message } from '../constants/message.constant';
 
 const EmailNotificationService = require('../notification/emailNotification.service')
@@ -29,6 +28,27 @@ export const registration = async (saveQueryParams) => {
     const userIsDuplicate = await docClient.get(isExist).promise();
     //#endregion
 
+    //#region fetching Customer role detail
+    const getRole = {
+        TableName: process.env.aws_TableName,
+        KeyConditionExpression: "#partitionKey = :PK",
+        ExpressionAttributeNames:{
+            "#partitionKey": "PK",
+            "#roleType" : "roleName"
+        },
+        ExpressionAttributeValues: {
+            ":PK": "ROLE",
+            ":roleType" : "customer"
+        },
+        FilterExpression: "#roleType = :roleType"
+    };
+    const fetchCustomerRoleDetail = await docClient.query(getRole).promise();
+    let customerRoleId = null
+    if(fetchCustomerRoleDetail.Items.length > 0){
+        customerRoleId = fetchCustomerRoleDetail.Items[0].SK
+    }
+    //#endregion
+
     if(Object.keys(userIsDuplicate).length > 0){
         return false
     }else{
@@ -41,6 +61,7 @@ export const registration = async (saveQueryParams) => {
             lastName : saveQueryParams.lastName,
             mobileNumber : saveQueryParams.mobileNumber,
             emailId : saveQueryParams.emailId,
+            userRole : customerRoleId,
             userStatus : false,
             password : hash,
             emailVerified : false,
