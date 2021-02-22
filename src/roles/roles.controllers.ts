@@ -31,6 +31,7 @@ class RoleController extends RequestBase {
             if(addRoleResp.status === false){
                 return res.status(409).send({
                     "status": 409,
+                    success : false,
                     "message": addRoleResp.message,
                     "payload" : {}
                 })
@@ -38,6 +39,7 @@ class RoleController extends RequestBase {
             const resObj: IResponse = {
                 res: res,
                 status: 200,
+                success : true,
                 message: addRoleResp.message,
                 data: addRoleResp.data
               }
@@ -54,6 +56,7 @@ class RoleController extends RequestBase {
             if(editRoleResp.status === false){
                 return res.status(409).send({
                     "status": 409,
+                    success : false,
                     "message": editRoleResp.message,
                     "payload" : {}
                 })
@@ -61,6 +64,7 @@ class RoleController extends RequestBase {
             const resObj: IResponse = {
                 res: res,
                 status: 200,
+                success : true,
                 message: editRoleResp.message,
                 data: editRoleResp.data
               }
@@ -84,6 +88,7 @@ class RoleController extends RequestBase {
             const resObj: IResponse = {
                 res: res,
                 status: 200,
+                success : true,
                 message: deleteRoleResp.message,
                 data: deleteRoleResp.data
             }
@@ -100,6 +105,7 @@ class RoleController extends RequestBase {
             const resObj: IResponse = {
                 res: res,
                 status: 200,
+                success : true,
                 message: fetchAllRoleList.message,
                 data: fetchAllRoleList.data
             }

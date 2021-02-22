@@ -73,7 +73,7 @@ export async function addRole(payload) {
     return {
         status : true,
         message : message.success.ROLE_ADD,
-        data : addRoleResp
+        data : {}
     }
     //#endregion
 }
