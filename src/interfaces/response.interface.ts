@@ -1,57 +1,58 @@
-import * as express from 'express';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import * as express from "express";
 
 export interface IUserData {
-    _id: String;
-    companyCode2: String;
-    email: String;
-    firstName: String;
-    lastName: String;
-    username: String;
-    token: String;
-    company: String;
-};
+  _id: string;
+  companyCode2: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  username: string;
+  token: string;
+  company: string;
+}
 
 export interface ISubcategoryData {
-    _id: String;
-    categoryId: String;
-    name: String;
-    description: String;
-    imageURL: String;
-    status: Boolean
+  _id: string;
+  categoryId: string;
+  name: string;
+  description: string;
+  imageURL: string;
+  status: boolean;
 }
 
 export interface ICategoryData {
-    _id: String;
-    name: String;
-    description: String;
-    imageURL: String;
-    status: Boolean
+  _id: string;
+  name: string;
+  description: string;
+  imageURL: string;
+  status: boolean;
 }
 
 export interface IItemData {
-    _id: String;
-    name: String;
-    description: String;
-    imageURL: String;
-    status: Boolean;
-    price: Number;
-    quantity: Number;
-    subcategory: ISubcategoryData
-    category: ICategoryData
+  _id: string;
+  name: string;
+  description: string;
+  imageURL: string;
+  status: boolean;
+  price: number;
+  quantity: number;
+  subcategory: ISubcategoryData;
+  category: ICategoryData;
 }
 
 export interface IResponse {
-    res: express.Response;
-    status: Number;
-    success : boolean;
-    message: String;
-    data: any;
-};
+  res: express.Response;
+  status: number;
+  success: boolean;
+  message: string;
+  data: any;
+}
 
 export interface ICartDetails {
-    totalQuantity: Number;
-    subTotal: Number;
+  totalQuantity: number;
+  subTotal: number;
 }
 export interface ICartReturnData {
-	returnData: ICartDetails;
+  returnData: ICartDetails;
 }

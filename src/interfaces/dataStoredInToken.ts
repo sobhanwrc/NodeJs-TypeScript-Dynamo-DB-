@@ -1,4 +1,3 @@
-
 interface DataStoredInToken {
   SK: string;
 }
